@@ -508,10 +508,7 @@ isSubsetOf l1 l2 = intersect l1 l2 ≡ l1
 -- | Add HTTP headers to a WAI response
 --
 addHeaders ∷ HTTP.ResponseHeaders → WAI.Middleware
-addHeaders hdrs app req respond = app req $ \response → do
-    let (st, headers, streamHandle) = WAI.responseToStream response
-    streamHandle $ \streamBody →
-        respond $ WAI.responseStream st (headers ⊕ hdrs) streamBody
+addHeaders hdrs = WAI.modifyResponse $ WAI.mapResponseHeaders (<> hdrs)
 
 -- | Format a list of 'HTTP.HeaderName's such that it can be used as
 -- an HTTP header value
@@ -537,4 +534,3 @@ isWebSocketsReq
     → Bool
 isWebSocketsReq req =
     fmap CI.mk (lookup "upgrade" $ WAI.requestHeaders req) == Just "websocket"
-
